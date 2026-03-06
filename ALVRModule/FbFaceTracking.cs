@@ -87,7 +87,11 @@ namespace ALVRModule
         {
             eye.Right.Openness = 1.0f - Math.Clamp(p[EyesClosedR] + p[EyesClosedR] * p[LidTightenerR], 0.0f, 1.0f);
             eye.Left.Openness = 1.0f - Math.Clamp(p[EyesClosedL] + p[EyesClosedL] * p[LidTightenerL], 0.0f, 1.0f);
-
+            
+            eye.Left.Gaze.x = p[EyesLookRightL] - p[EyesLookLeftL];
+            eye.Left.Gaze.y = p[EyesLookUpL] - p[EyesLookDownL];
+            eye.Right.Gaze.x = p[EyesLookLeftR] - p[EyesLookRightR];
+            eye.Right.Gaze.y = p[EyesLookUpR] - p[EyesLookDownR];
             #region Eyelids
 
             w[EyeSquintRight] = p[LidTightenerR];

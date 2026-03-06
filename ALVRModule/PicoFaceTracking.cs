@@ -87,6 +87,11 @@ namespace ALVRModule
         public static void SetFacePicoParams(FloatParams p, FloatWeightParams w, UnifiedEyeData eye)
         {
             p.Read((int)FaceMax);
+            
+            eye.Left.Gaze.x = p[EyeLookInL] - p[EyeLookOutL];
+            eye.Left.Gaze.y = p[EyeLookUpL] - p[EyeLookDownL];
+            eye.Right.Gaze.x = p[EyeLookOutR] - p[EyeLookInR]; 
+            eye.Right.Gaze.y = p[EyeLookUpR] - p[EyeLookDownR];
 
             eye.Right.Openness = 1.0f - Math.Clamp(p[EyeBlinkR] + p[EyeBlinkR] * p[EyeSquintR], 0.0f, 1.0f);
             eye.Left.Openness = 1.0f - Math.Clamp(p[EyeBlinkL] + p[EyeBlinkL] * p[EyeSquintL], 0.0f, 1.0f);

@@ -30,12 +30,18 @@ namespace ALVRModule
         {
             p.Read(8);
 
-            (eye.Left.Gaze.x, eye.Left.Gaze.y) = NormalizedGaze(p.Params?[0..] ?? Identity);
-            (eye.Right.Gaze.x, eye.Right.Gaze.y) = NormalizedGaze(p.Params?[4..] ?? Identity);
+            var left = NormalizedGaze(p.Params?[0..4] ?? Identity);
+            var right = NormalizedGaze(p.Params?[4..8] ?? Identity);
+
+            // 修改这里的赋值逻辑：x对应yaw(左右)，y对应pitch(上下)
+            eye.Left.Gaze.x = -left.yaw;
+            eye.Left.Gaze.y = left.pitch;
+            
+            eye.Right.Gaze.x = right.yaw; // 右眼无负号，解决斗鸡眼
+            eye.Right.Gaze.y = right.pitch;
 
             eye.Left.PupilDiameter_MM = 5f;
             eye.Right.PupilDiameter_MM = 5f;
-
             eye._minDilation = 0;
             eye._maxDilation = 10;
         }
@@ -43,13 +49,15 @@ namespace ALVRModule
         public static void SetCombEyesQuatParams(FloatParams p, FloatWeightParams w, UnifiedEyeData eye)
         {
             p.Read(4);
+            var combined = NormalizedGaze(p.Params ?? Identity);
 
-            (eye.Left.Gaze.x, eye.Left.Gaze.y) = NormalizedGaze(p.Params ?? Identity);
-            (eye.Right.Gaze.x, eye.Right.Gaze.y) = NormalizedGaze(p.Params ?? Identity);
+            // 同样修改混合眼动的映射
+            eye.Left.Gaze.x = -combined.yaw;
+            eye.Right.Gaze.x = combined.yaw;
+            eye.Left.Gaze.y = eye.Right.Gaze.y = combined.pitch;
 
             eye.Left.PupilDiameter_MM = 5f;
             eye.Right.PupilDiameter_MM = 5f;
-
             eye._minDilation = 0;
             eye._maxDilation = 10;
         }

@@ -32,8 +32,16 @@ namespace ALVRModule
             byte[] buffer = new byte[4];
             for (int i = 0; i < count; i++)
             {
-                Stream.ReadAtLeast(buffer, buffer.Length, false);
-                Params[i] = BitConverter.ToSingle(buffer, 0);
+                // 仅将这里的直接读取包裹在长度检查中
+                if (Stream.Length - Stream.Position >= 4)
+                {
+                    Stream.ReadAtLeast(buffer, buffer.Length, false);
+                    Params[i] = BitConverter.ToSingle(buffer, 0);
+                }
+                else
+                {
+                    Params[i] = 0;
+                }
             }
         }
     }
