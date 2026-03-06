@@ -88,6 +88,13 @@ namespace ALVRModule
         {
             p.Read((int)FaceMax);
 
+            // 增加对ALVR眼动数据的计算，ALVR提供了基于四元数的眼动数据，分别对应左眼和右眼的旋转。我们需要将这些旋转转换为凝视方向，并映射到统一参数中。
+            // 可能多此一举，但是管他呢，全加上了也不吃亏
+            eye.Left.Gaze.x = p[EyeLookInL] - p[EyeLookOutL];
+            eye.Left.Gaze.y = p[EyeLookUpL] - p[EyeLookDownL];
+            eye.Right.Gaze.x = p[EyeLookOutR] - p[EyeLookInR]; 
+            eye.Right.Gaze.y = p[EyeLookUpR] - p[EyeLookDownR];
+
             eye.Right.Openness = 1.0f - Math.Clamp(p[EyeBlinkR] + p[EyeBlinkR] * p[EyeSquintR], 0.0f, 1.0f);
             eye.Left.Openness = 1.0f - Math.Clamp(p[EyeBlinkL] + p[EyeBlinkL] * p[EyeSquintL], 0.0f, 1.0f);
 
