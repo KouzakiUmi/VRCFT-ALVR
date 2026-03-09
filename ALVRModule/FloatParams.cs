@@ -32,16 +32,8 @@ namespace ALVRModule
             byte[] buffer = new byte[4];
             for (int i = 0; i < count; i++)
             {
-                // 匹配新的数据格式，如果剩余数据不足4字节，则将该参数设置为0
-                if (Stream.Length - Stream.Position >= 4)
-                {
-                    Stream.ReadAtLeast(buffer, buffer.Length, false);
-                    Params[i] = BitConverter.ToSingle(buffer, 0);
-                }
-                else
-                {
-                    Params[i] = 0;
-                }
+                Stream.ReadAtLeast(buffer, buffer.Length, false);
+                Params[i] = BitConverter.ToSingle(buffer, 0);
             }
         }
     }

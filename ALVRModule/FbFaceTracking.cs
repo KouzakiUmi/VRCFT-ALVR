@@ -87,13 +87,7 @@ namespace ALVRModule
         {
             eye.Right.Openness = 1.0f - Math.Clamp(p[EyesClosedR] + p[EyesClosedR] * p[LidTightenerR], 0.0f, 1.0f);
             eye.Left.Openness = 1.0f - Math.Clamp(p[EyesClosedL] + p[EyesClosedL] * p[LidTightenerL], 0.0f, 1.0f);
-            
-            // 不知道影不影响，但是反正加上就对了
-            // ALVR的眼动数据是基于头部坐标系的，左眼的yaw需要取反，右眼则不需要，这样可以解决斗鸡眼问题?
-            eye.Left.Gaze.x = p[EyesLookRightL] - p[EyesLookLeftL];
-            eye.Left.Gaze.y = p[EyesLookUpL] - p[EyesLookDownL];
-            eye.Right.Gaze.x = p[EyesLookLeftR] - p[EyesLookRightR];
-            eye.Right.Gaze.y = p[EyesLookUpR] - p[EyesLookDownR];
+
             #region Eyelids
 
             w[EyeSquintRight] = p[LidTightenerR];

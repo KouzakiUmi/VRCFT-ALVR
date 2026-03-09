@@ -30,18 +30,12 @@ namespace ALVRModule
         {
             p.Read(8);
 
-            var left = NormalizedGaze(p.Params?[0..4] ?? Identity);
-            var right = NormalizedGaze(p.Params?[4..8] ?? Identity);
-
-            // ALVR的眼动数据是基于头部坐标系的，左眼的yaw需要取反，右眼则不需要，这样可以解决斗鸡眼问题?
-            eye.Left.Gaze.x = -left.yaw;
-            eye.Left.Gaze.y = left.pitch;
-            
-            eye.Right.Gaze.x = right.yaw; 
-            eye.Right.Gaze.y = right.pitch;
+            (eye.Left.Gaze.x, eye.Left.Gaze.y) = NormalizedGaze(p.Params?[0..] ?? Identity);
+            (eye.Right.Gaze.x, eye.Right.Gaze.y) = NormalizedGaze(p.Params?[4..] ?? Identity);
 
             eye.Left.PupilDiameter_MM = 5f;
             eye.Right.PupilDiameter_MM = 5f;
+
             eye._minDilation = 0;
             eye._maxDilation = 10;
         }
@@ -49,15 +43,13 @@ namespace ALVRModule
         public static void SetCombEyesQuatParams(FloatParams p, FloatWeightParams w, UnifiedEyeData eye)
         {
             p.Read(4);
-            var combined = NormalizedGaze(p.Params ?? Identity);
 
-            // 新的混合眼动数据已经过ALVR的处理，应该直接使用yaw和pitch来设置眼睛的凝视方向，而不需要再进行额外的变换
-            eye.Left.Gaze.x = -combined.yaw;
-            eye.Right.Gaze.x = combined.yaw;
-            eye.Left.Gaze.y = eye.Right.Gaze.y = combined.pitch;
+            (eye.Left.Gaze.x, eye.Left.Gaze.y) = NormalizedGaze(p.Params ?? Identity);
+            (eye.Right.Gaze.x, eye.Right.Gaze.y) = NormalizedGaze(p.Params ?? Identity);
 
             eye.Left.PupilDiameter_MM = 5f;
             eye.Right.PupilDiameter_MM = 5f;
+
             eye._minDilation = 0;
             eye._maxDilation = 10;
         }
