@@ -15,6 +15,8 @@ namespace ALVRModule
         private const int PrefixSize = 8;
 
         private readonly UdpClient Socket = new(Port);
+        private readonly byte[] _receiveBuffer = new byte[4096];
+        private readonly FloatParams _floatParams = new();
         private readonly Dictionary<string, ParamsConsumer> Consumers = new()
         {
             ["EyesQuat"] = EyeTracking.SetEyesQuatParams,
@@ -42,34 +44,34 @@ namespace ALVRModule
 
         public override void Update()
         {
-            byte[] packet;
+            int length;
 
             try
             {
-                IPEndPoint from = new(IPAddress.Any, 0);
-                packet = Socket.Receive(ref from);
+                length = Socket.Client.Receive(_receiveBuffer);
             }
             catch (Exception)
             {
                 return;
             }
 
-            using MemoryStream stream = new(packet);
-            FloatParams p = new(stream);
+            int offset = 0;
 
-            while (stream.Length - stream.Position >= PrefixSize)
+            while (length - offset >= PrefixSize)
             {
-                byte[] prefixBytes = new byte[PrefixSize];
-                stream.ReadAtLeast(prefixBytes, PrefixSize);
-                string prefix = Encoding.ASCII.GetString(prefixBytes);
+                string prefix = Encoding.ASCII.GetString(_receiveBuffer, offset, PrefixSize);
+                offset += PrefixSize;
 
                 if (Consumers.TryGetValue(prefix, out var consumer) && consumer != null)
                 {
-                    consumer(p, FloatWeightParams.Instance, UnifiedTracking.Data.Eye);
+                    _floatParams.UpdateBuffer(_receiveBuffer, offset);
+                    consumer(_floatParams, FloatWeightParams.Instance, UnifiedTracking.Data.Eye);
+                    offset = _floatParams.GetOffset();
                     continue;
                 }
 
                 Logger.LogError("[ALVR Module] Unrecognized prefix: {}", prefix);
+                break;
             }
         }
 

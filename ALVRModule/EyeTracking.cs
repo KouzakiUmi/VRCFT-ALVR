@@ -7,12 +7,12 @@ namespace ALVRModule
         private static readonly float[] Identity = new float[] { 0, 0, 0, 1 };
 
         // Code taken from https://github.com/regzo2/VRCFaceTracking-QuestProOpenXR/blob/9b1b15b4b74fc070784a2f0370da1b47b756aac6/VRCFT%20-%20Quest%20OpenXR/QuestOpenXRTrackingModule.cs#L117
-        private static (float pitch, float yaw) NormalizedGaze(float[] p)
+        private static (float pitch, float yaw) NormalizedGaze(float[] p, int offset)
         {
-            float x = p[0];
-            float y = p[1];
-            float z = p[2];
-            float w = p[3];
+            float x = p[offset + 0];
+            float y = p[offset + 1];
+            float z = p[offset + 2];
+            float w = p[offset + 3];
 
             float magnitude = (float)Math.Sqrt(x * x + y * y + z * z + w * w);
             x /= magnitude;
@@ -30,8 +30,9 @@ namespace ALVRModule
         {
             p.Read(8);
 
-            (eye.Left.Gaze.x, eye.Left.Gaze.y) = NormalizedGaze(p.Params?[0..] ?? Identity);
-            (eye.Right.Gaze.x, eye.Right.Gaze.y) = NormalizedGaze(p.Params?[4..] ?? Identity);
+            var arr = p.Params.Length >= 8 ? p.Params : Identity;
+            (eye.Left.Gaze.x, eye.Left.Gaze.y) = NormalizedGaze(arr, 0);
+            (eye.Right.Gaze.x, eye.Right.Gaze.y) = NormalizedGaze(arr, arr == Identity ? 0 : 4);
 
             eye.Left.PupilDiameter_MM = 5f;
             eye.Right.PupilDiameter_MM = 5f;
@@ -44,8 +45,9 @@ namespace ALVRModule
         {
             p.Read(4);
 
-            (eye.Left.Gaze.x, eye.Left.Gaze.y) = NormalizedGaze(p.Params ?? Identity);
-            (eye.Right.Gaze.x, eye.Right.Gaze.y) = NormalizedGaze(p.Params ?? Identity);
+            var arr = p.Params.Length >= 4 ? p.Params : Identity;
+            (eye.Left.Gaze.x, eye.Left.Gaze.y) = NormalizedGaze(arr, 0);
+            (eye.Right.Gaze.x, eye.Right.Gaze.y) = NormalizedGaze(arr, 0);
 
             eye.Left.PupilDiameter_MM = 5f;
             eye.Right.PupilDiameter_MM = 5f;

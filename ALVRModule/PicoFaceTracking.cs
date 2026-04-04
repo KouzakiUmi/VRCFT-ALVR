@@ -86,7 +86,7 @@ namespace ALVRModule
     {
         public static void SetFacePicoParams(FloatParams p, FloatWeightParams w, UnifiedEyeData eye)
         {
-            p.Read((int)FaceMax);
+            p.Read(52); // ALVR sends exactly 52 values for Pico face tracking
 
             // 增加对ALVR眼动数据的计算，ALVR提供了基于四元数的眼动数据，分别对应左眼和右眼的旋转。我们需要将这些旋转转换为凝视方向，并映射到统一参数中。
             // 可能多此一举，但是管他呢，全加上了也不吃亏

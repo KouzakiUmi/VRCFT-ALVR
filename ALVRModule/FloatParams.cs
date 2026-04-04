@@ -5,37 +5,50 @@ namespace ALVRModule
 {
     public class FloatParams
     {
-        private readonly MemoryStream Stream;
+        private byte[] _buffer = Array.Empty<byte>();
+        private int _offset;
 
-        public float[]? Params
-        {
-            get; private set;
-        }
+        public float[] Params { get; private set; } = Array.Empty<float>();
 
         public float this[Enum index]
         {
             get
             {
-                return Params?[Convert.ToInt32(index)] ?? 0;
+                int i = Convert.ToInt32(index);
+                if (i >= 0 && i < Params.Length)
+                {
+                    return Params[i];
+                }
+                return 0f;
             }
         }
 
-        public FloatParams(MemoryStream stream)
+        public void UpdateBuffer(byte[] buffer, int offset)
         {
-            Stream = stream;
+            _buffer = buffer;
+            _offset = offset;
         }
 
         public void Read(int count)
         {
-            Params = new float[count];
-
-            byte[] buffer = new byte[4];
-            for (int i = 0; i < count; i++)
+            if (Params.Length < count)
             {
-                Stream.ReadAtLeast(buffer, buffer.Length, false);
-                Params[i] = BitConverter.ToSingle(buffer, 0);
+                Params = new float[count];
             }
+
+            int bytesToCopy = count * 4;
+            if (_offset + bytesToCopy > _buffer.Length)
+            {
+                Array.Clear(Params, 0, count);
+                _offset = _buffer.Length;
+                return;
+            }
+
+            Buffer.BlockCopy(_buffer, _offset, Params, 0, bytesToCopy);
+            _offset += bytesToCopy;
         }
+
+        public int GetOffset() => _offset;
     }
 
     public class FloatWeightParams
